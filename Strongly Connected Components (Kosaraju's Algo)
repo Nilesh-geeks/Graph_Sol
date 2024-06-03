@@ -1,0 +1,75 @@
+Problem :: Strongly Connected Components (Kosaraju's Algo)
+Get Internship at GfG by submitting your Entries in: Data Science Blogathon
+
+banner
+Given a Directed Graph with V vertices (Numbered from 0 to V-1) and E edges, Find the number of strongly connected components in the graph.
+
+Time Complexity :: O(V + E)
+Space Complexity :: O(V+E)
+
+Code :: 
+class Solution
+{   
+    public:
+    void dfs1(int node  , vector<bool>&vis ,vector<int>adjT[] , stack<int>&st){
+        vis[node] = 1;
+        for(auto it:adjT[node]){
+            if(!vis[it]){
+                dfs1(it , vis , adjT , st);
+            }
+        }
+        st.push(node);
+    }
+    
+    
+    void dfs(int node  , vector<bool>&v ,vector<int>adjR[]){
+        v[node] = 1;
+        for(auto it:adjR[node]){
+            if(!v[it]){
+                dfs(it , v , adjR );
+            }
+        }
+    }
+	public:
+	//Function to find number of strongly connected components in the graph.
+    int kosaraju(int V, vector<vector<int>>& adj)
+    {   
+        vector<int>adjT[V];
+        
+        for(int i =0 ; i<V ; i++){
+            for(int j=0 ; j<adj[i].size() ; j++){
+                adjT[i].push_back(adj[i][j]);
+            }
+        }
+        
+        
+        vector<bool>vis(V , 0);
+        stack<int>st;
+        for(int i =0 ; i<V ; i++){
+            if(!vis[i])dfs1(i , vis , adjT , st);
+        }
+        
+        
+        vector<int>adjR[V];
+        for(int i =0 ; i<V ; i++){
+           for(auto it:adj[i]){
+               adjR[it].push_back(i);
+           }
+        }
+        
+        
+        vector<bool>v(V,0);
+        int cnt=0;
+        while(!st.empty()){
+            int node = st.top();
+            st.pop();
+            if(!v[node]){
+                cnt++;
+                dfs(node , v, adjR);
+            }
+        }
+     
+        return cnt;
+        // return 0;
+    }
+};
