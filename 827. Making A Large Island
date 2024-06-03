@@ -1,0 +1,102 @@
+Problem :: 827. Making A Large Island
+
+You are given an n x n binary matrix grid. You are allowed to change at most one 0 to be 1.
+
+Return the size of the largest island in grid after applying this operation.
+
+An island is a 4-directionally connected group of 1s.
+
+Time Complexity :: N*N + N *log N (V Log E)
+Space Complexity :: N^2
+Code :: 
+ #pragma gcc optimize("03")
+auto init = [](){
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    return 'c';
+}();
+class DisJoint{
+    public :
+    vector<int> size , parent;
+    DisJoint(int n){
+        size.resize(n+1);
+        parent.resize(n+1);
+        for(int i=0 ; i<n ; i++){
+            parent[i] = i;
+            size[i] = 1;
+        }
+    }
+
+    int find_parent(int u){
+        if(u== parent[u])return u;
+        return parent[u] = find_parent(parent[u]);
+    }
+
+    void UnionBySize(int u , int v){
+        int ulu_u = find_parent(u);
+        int ulu_v = find_parent(v);
+        if(ulu_u == ulu_v)return ;
+        if(size[ulu_u] < size[ulu_v]){
+            parent[ulu_u] = ulu_v;
+            size[ulu_v] += size[ulu_u];
+        }
+        else{
+            parent[ulu_v] = ulu_u;
+            size[ulu_u] += size[ulu_v];
+        }
+    }
+};
+class Solution {
+public:
+    int largestIsland(vector<vector<int>>& grid) {
+        int n = grid.size();
+        DisJoint ds(n*n);
+        int maxi = 0 ;
+        for(int i=0 ; i< n ; i++){
+            for(int j=0 ; j<n; j++){
+                if(grid[i][j]==1){
+                    int p = i*n+j;
+                    int dr[] ={-1,0,1,0};
+                    int dc[] = {0,1,0,-1};
+                    for(int ind =0 ; ind<4 ; ind++){
+                        int newr = i+ dr[ind];
+                        int newc =j + dc[ind];
+                        if(newr>=0 && newr<n && newc>=0 && newc<n && grid[newr][newc]==1){
+                            int pos = newr * n + newc;
+                            ds.UnionBySize(p , pos);
+                            
+                        }
+                    }  
+                }
+            }
+        }
+        for(int i=0 ; i< n ; i++){
+            for(int j=0 ; j<n; j++){
+                if(grid[i][j] == 0){
+                    int dr[] ={-1,0,1,0};
+                    int dc[] = {0,1,0,-1};
+                    unordered_set<int>s;
+                    for(int ind =0 ; ind<4 ; ind++){
+                        int newr = i+ dr[ind];
+                        int newc = j + dc[ind];
+                        if(newr>=0 && newr<n && newc>=0 && newc<n && grid[newr][newc]==1){
+                            int pos = newr * n + newc;
+                            s.insert(ds.find_parent(pos));
+                        }
+                    } 
+                    int sum =0;
+                    for(auto it:s){
+                        sum += ds.size[it];
+                    } 
+                    maxi = max(maxi , sum+1);
+                }
+            }
+        }
+
+        for(int i=0 ; i<n*n ;i++){
+            maxi = max(maxi , ds.size[ds.find_parent(i)]);
+        }
+        return maxi;
+    }
+};
